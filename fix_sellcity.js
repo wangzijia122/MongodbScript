@@ -1,8 +1,3 @@
-db.getCollection("hx2car_output_test").find({"SellCityId.history" : null}).size();
-db.hx2car_output_test.find({OnDate : {$lt : ISODate("2021-01-01T16:00:00.000+0000")}}).size()
-db.loadServerScripts();
-fix_sellcity();
-
 db.system.js.save({
 	_id : "fix_sellcity",
 	value : function () {
