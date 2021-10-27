@@ -1,7 +1,7 @@
 function() {
 	var collectionName = "hx2car_output_test"
     var object = db.getCollection(collectionName).find({}).addOption(DBQuery.Option.noTimeout);
-	var fixField = ["AskingPrice","CarName","ColorId","Mileage","RegCityId","RegTime.","SellCityId","SoldLable","TransferTimes","TrimId","Type","Usage","DealerId","DealerName"];
+	var fixField = ["AskingPrice","CarName","ColorId","Mileage","RegCityId","RegTime","SellCityId","SoldLable","TransferTimes","TrimId","Type","Usage","DealerId","DealerName"];
     var fixNum = 0;
     while (object.hasNext()) {
       var outputdc = object.next();
