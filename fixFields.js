@@ -1,31 +1,38 @@
-function() {
-	var collectionName = "hx2car_output_test"
-    var object = db.getCollection(collectionName).find({}).addOption(DBQuery.Option.noTimeout);
+db.getCollection("system.js").save({"_id" : "fixFileds", 
+    "value" : function() {
+    var collectionName = "hx2car_output"
+    var object = db.getCollection(collectionName).find().addOption(DBQuery.Option.noTimeout);
 	var fixField = ["AskingPrice","CarName","ColorId","Mileage","RegCityId","RegTime","SellCityId","SoldLable","TransferTimes","TrimId","Type","Usage","DealerId","DealerName"];
-    var fixNum = 0;
-    while (object.hasNext()) {
-      var outputdc = object.next();
-	  for (var index in fixField) {
-		  var fieldName = fixField[index]
-		  var oldValue = outputdc[fieldName];
-		  if (oldValue == null || oldValue == "null" || oldValue == "") {
-				oldValue = null;
-				} else if (oldValue.history != null) {
-				    if (oldValue.current == "null") {
-					oldValue = null;
-					} else {continue}
-		  }
-			outputdc[fieldName] = {};
-			outputdc[fieldName].current = oldValue;
-			outputdc[fieldName].history = [];
-			outputdc[fieldName].history.push({
-				value:oldValue, gatherTime : outputdc.Time, selfName : outputdc.SourceVersion
+	while (object.hasNext()) {
+	   	var outputdc = object.next();
+		var newoutputdc = outputdc;
+	   	for (var Index in fixField) {
+	   	    var fieldName = fixField[Index];
+	   	    var oldValue = newoutputdc[fieldName];
+	   	    //1.如果oldValue或oldValue.history为空，直接打包
+	   	    //2.否则如果oldValue.current为"null"，oldValue 赋值为 null并重新打包
+	   	    if (oldValue == null || oldValue.history == null) {
+	   	        if (oldValue == "null" || oldValue == "") {
+	   	            oldValue = null;
+	   	        };
+	   	    	newoutputdc[fieldName] = {};
+				newoutputdc[fieldName].current = oldValue;
+				newoutputdc[fieldName].history = [];
+				newoutputdc[fieldName].history.push({
+					value:oldValue, gatherTime : newoutputdc.Time, selfName : newoutputdc.SourceVersion
 					});
-		  }
-	db.getCollection(collectionName).deleteOne({"OrgCarId":outputdc.OrgCarId});
-	db.getCollection(collectionName).insertOne(outputdc);
-	fixNum = fixNum + 1;
-	}
-		object.close();
-		print("修改完成，共有" + fixNum + "个文档被修改！");
-	}
+	   	    } else if (oldValue.current == "null"){
+	   	        oldValue = null;
+	   	        newoutputdc[fieldName] = {};
+				newoutputdc[fieldName].current = oldValue;
+				newoutputdc[fieldName].history = [];
+				newoutputdc[fieldName].history.push({
+					value:oldValue, gatherTime : newoutputdc.Time, selfName : newoutputdc.SourceVersion
+					});
+	   	    };
+	   	};
+	if (newoutputdc == outputdc) {continue};
+	db.getCollection(collectionName).deleteOne({"OrgCarId":newoutputdc.OrgCarId});
+	db.getCollection(collectionName).insertOne(newoutputdc);
+}
+}})
